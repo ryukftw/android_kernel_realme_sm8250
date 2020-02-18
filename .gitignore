@@ -141,3 +141,7 @@ buildkernel.sh
 out
 *.zip
 
+#
+#Ignoring Android.bp link file
+#
+Android.bp
