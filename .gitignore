@@ -145,3 +145,5 @@ out
 #Ignoring Android.bp link file
 #
 Android.bp
+scripts/**/Android.bp
+scripts/Android.bp
