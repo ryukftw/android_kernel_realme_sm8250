@@ -34,7 +34,7 @@
 
 #define VDSO_SYMBOL(base, name)				    \
 ({							    \
-	(void *)((vdso_offset_##name & ~1UL) - VDSO_LBASE + \
+	(void *)((vdso_offset_sigtramp & ~1UL) - VDSO_LBASE + \
 		(unsigned long)(base));			    \
 })
 
