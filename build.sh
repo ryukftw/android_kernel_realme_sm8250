@@ -1,33 +1,34 @@
 #!/bin/bash
+clear
+echo Cloning AnyKernel
+git clone https://github.com/ryukftw/AnyKernel3 --depth=1 anykernel
 
-#
-# Clone proton-clang toolchain if needed
-#
+DT=$(date +"%Y%m%d-%H%M")
+config=vendor/sm8250_defconfig
 
-KERNEL_DEFCONFIG=vendor/sm8250_defconfig
-DIR=$PWD
-export ARCH=arm64
-export SUBARCH=arm64
-export CLANG_PATH="~/toolchains/bin"
-export PATH="$CLANG_PATH:$PATH"
-export CROSS_COMPILE=aarch64-linux-gnu-
-export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
-export KBUILD_BUILD_USER=Amog
-export KBUILD_BUILD_HOST=Us
+MAKE_PATH=$(pwd)/tc/build-tools/bin/
+CROSS_COMPILE=$(pwd)/tc/aarch64-linux-android-4.9/bin/aarch64-linux-android-
+KERNEL_ARCH=arm64
+KERNEL_OUT=$(pwd)/out
+export KERNEL_SRC=${KERNEL_OUT}
+export CLANG_TRIPLE=aarch64-linux-gnu-
+OUT_DIR=${KERNEL_OUT}
+ARCH=${KERNEL_ARCH}
+TARGET_INCLUDES=${TARGET_KERNEL_MAKE_CFLAGS}
+TARGET_LINCLUDES=${TARGET_KERNEL_MAKE_LDFLAGS}
 
-echo
-echo "Kernel is going to be built using $KERNEL_DEFCONFIG"
-echo
+TARGET_KERNEL_MAKE_ENV+="CC=$(pwd)/tc/clang/bin/clang"
 
-make CC=clang AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM=1 LLVM_IAS=1 O=out $KERNEL_DEFCONFIG
+compile() {
+echo compiling kernel...
 
-make O=${OUT_DIR} ${TARGET_KERNEL_MAKE_ENV} LLVM_IAS=1 HOSTLDFLAGS="${TARGET_LINCLUDES}" ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip -j10 LLVM_IAS=1 vendor/$config
+make O=${OUT_DIR} ${TARGET_KERNEL_MAKE_ENV} LLVM_IAS=1 HOSTLDFLAGS="${TARGET_LINCLUDES}" ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM_IAS=1 $config
 
 make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} LLVM_IAS=1 HOSTCFLAGS="${TARGET_INCLUDES}" HOSTLDFLAGS="${TARGET_LINCLUDES}" O=${OUT_DIR} ${TARGET_KERNEL_MAKE_ENV} NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM_IAS=1 -j$(nproc --all) |& tee build.log
 }
 
 zipping() {
-echo zipping kernel
+echo zipping kernel...
 
 cd anykernel || exit 1
     rm *zip
@@ -35,8 +36,17 @@ cd anykernel || exit 1
     cp ../out/arch/arm64/boot/dtbo.img .
     cp ../out/arch/arm64/boot/dtb .
     zip -r9 phoeniX-AOSP-${DT}.zip *
+    rm Image dtbo.img dtb
     cd ..
+}
+
+remove() {
+echo removing compiled images....
+cd out/arch/arm64/boot
+rm Image dtbo.img dtb
+cd -
 }
 
 compile
 zipping
+remove
