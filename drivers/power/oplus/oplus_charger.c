@@ -4692,7 +4692,7 @@ int oplus_chg_parse_charger_dt(struct oplus_chg_chip *chip)
 	rc = of_property_read_u32(node, "qcom,ff1_normal_fastchg_ma",
 			&chip->limits.ff1_normal_fastchg_ma);
 	if (rc) {
-		chip->limits.ff1_normal_fastchg_ma = 1000;
+		chip->limits.ff1_normal_fastchg_ma = 1800;
 	}
 	rc = of_property_read_u32(node, "qcom,ff1_warm_fastchg_ma",
 			&chip->limits.ff1_warm_fastchg_ma);
@@ -4717,12 +4717,12 @@ int oplus_chg_parse_charger_dt(struct oplus_chg_chip *chip)
 		rc = of_property_read_u32(node, "qcom,ffc2_normal_fastchg_ma",
 			&chip->limits.ffc2_normal_fastchg_ma);
 	if (rc < 0) {
-		chip->limits.ffc2_normal_fastchg_ma = 700;
+		chip->limits.ffc2_normal_fastchg_ma = 1500;
 	}
 		rc = of_property_read_u32(node, "qcom,ffc2_warm_fastchg_ma",
 			&chip->limits.ffc2_warm_fastchg_ma);
 	if (rc < 0) {
-		chip->limits.ffc2_warm_fastchg_ma = 750;
+		chip->limits.ffc2_warm_fastchg_ma = 1500;
 	}
 		rc = of_property_read_u32(node, "qcom,ffc2_exit_step_ma",
 			&chip->limits.ffc2_exit_step_ma);
@@ -5018,7 +5018,7 @@ int oplus_chg_parse_charger_dt(struct oplus_chg_chip *chip)
 	rc = of_property_read_u32(node, "qcom,vooc_temp_bat_warm_decidegc",
 			&chip->limits.vooc_warm_bat_decidegc);
 	if (rc) {
-		chip->limits.vooc_warm_bat_decidegc = 380;
+		chip->limits.vooc_warm_bat_decidegc = 400;
 	}
 	rc = of_property_read_u32(node, "qcom,input_current_vooc_ma_high",
 			&chip->limits.input_current_vooc_ma_high);
@@ -5033,7 +5033,7 @@ int oplus_chg_parse_charger_dt(struct oplus_chg_chip *chip)
 	rc = of_property_read_u32(node, "qcom,charger_current_vooc_ma_normal",
 			&chip->limits.charger_current_vooc_ma_normal);
 	if (rc) {
-		chip->limits.charger_current_vooc_ma_normal = 1000;
+		chip->limits.charger_current_vooc_ma_normal = 1800;
 	}
 
 	chip->limits.default_input_current_vooc_ma_high
@@ -5274,7 +5274,7 @@ int oplus_chg_parse_charger_dt(struct oplus_chg_chip *chip)
 
 	rc = of_property_read_u32(node, "qcom,ui_soc_decimal_speedmin", &chip->ui_soc_decimal_speedmin);
 	if (rc) {
-		chip->ui_soc_decimal_speedmin = 2;
+		chip->ui_soc_decimal_speedmin = 3;
 	}
 
 	chip->support_abnormal_adapter = of_property_read_bool(node, "qcom,support_abnormal_adapter");
@@ -8061,7 +8061,7 @@ void oplus_charger_detect_check(struct oplus_chg_chip *chip)
 			}
 
 			if (oplus_vooc_get_fastchg_to_normal() == true
-					|| oplus_vooc_get_fastchg_to_warm() == true || (oplus_pps_get_pps_mos_started() == true)) {
+					|| oplus_vooc_get_fastchg_to_warm() == true) {
 				charger_xlog_printk(CHG_LOG_CRTI,
 					"fast_to_normal or to_warm 1,don't turn on charge here\n");
 				if (oplus_vooc_get_reset_adapter_st()) {
@@ -9298,12 +9298,8 @@ static void oplus_chg_update_ui_soc(struct oplus_chg_chip *chip)
 		if (oplus_get_flash_screen_ctrl() == true) {
 			if (chip->ui_soc == 100) {
 				soc_down_limit = SOC_SYNC_DOWN_RATE_300S;
-			} else if (chip->ui_soc >= 98) {
-				soc_down_limit = SOC_SYNC_DOWN_RATE_300S;
-			} else if (chip->ui_soc >= 90) {
-				soc_down_limit = SOC_SYNC_DOWN_RATE_120S;
-			} else if (chip->ui_soc >= 80) {
-				soc_down_limit = SOC_SYNC_DOWN_RATE_80S;
+			} else if (chip->ui_soc >= 95) {
+				soc_down_limit = SOC_SYNC_DOWN_RATE_150S;
 			} else {
 				soc_down_limit = SOC_SYNC_DOWN_RATE_70S;
 			}
