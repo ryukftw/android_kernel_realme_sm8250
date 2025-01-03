@@ -736,6 +736,27 @@ static const struct midr_range arm64_workaround_1188873_cpus[] = {
 
 #endif
 
+#ifdef CONFIG_ARM64_ERRATUM_845719
+
+static const struct midr_range arm64_workaround_845719_cpus[] = {
+	/* Cortex-A53 r0p[01234] */
+	MIDR_RANGE(MIDR_CORTEX_A53, 0, 0, 0, 4),
+	/* Kryo2xx Silver rAp4 */
+	MIDR_RANGE(MIDR_KRYO2XX_SILVER, 0xA, 0x4, 0xA, 0x4),
+	{},
+};
+
+#endif
+
+#ifdef CONFIG_ARM64_ERRATUM_1742098
+static struct midr_range broken_aarch32_aes[] = {
+	MIDR_RANGE(MIDR_CORTEX_A57, 0, 1, 0xf, 0xf),
+	MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
+	{},
+};
+
+#endif
+
 #ifdef CONFIG_ARM64_ERRATUM_3194386
 static const struct midr_range erratum_spec_ssbs_list[] = {
 	MIDR_ALL_VERSIONS(MIDR_CORTEX_A76),
