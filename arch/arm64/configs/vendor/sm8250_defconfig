@@ -1,4 +1,4 @@
-CONFIG_LOCALVERSION="-phoeniX"
+CONFIG_LOCALVERSION="-phoeniX-next"
 
 # KernelSU
 CONFIG_KSU=y
