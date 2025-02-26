@@ -4,7 +4,7 @@ echo Cloning AnyKernel
 git clone https://github.com/ryukftw/AnyKernel3 --depth=1 anykernel
 
 DT=$(date +"%Y%m%d-%H%M")
-config=vendor/sm8250_defconfig
+config=vendor/kona-perf_defconfig
 
 MAKE_PATH=$(pwd)/tc/build-tools/bin/
 CROSS_COMPILE=$(pwd)/tc/aarch64-linux-android-4.9/bin/aarch64-linux-android-
