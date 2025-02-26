@@ -1,4 +1,5 @@
 CONFIG_LOCALVERSION="-phoeniX"
+# CONFIG_LOCALVERSION_AUTO is not set
 
 # KernelSU
 CONFIG_KSU=y
