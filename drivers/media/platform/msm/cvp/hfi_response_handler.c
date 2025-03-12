@@ -485,6 +485,7 @@ static int hfi_process_session_cvp_msg(u32 device_id,
 	struct msm_cvp_inst *inst = NULL;
 	struct msm_cvp_core *core;
 	void *session_id;
+	int rc;
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 	struct cvp_session_queue *sq;
 #endif
@@ -524,8 +525,8 @@ static int hfi_process_session_cvp_msg(u32 device_id,
 
 			msm_cvp_unmap_buf_cpu(inst, ktid);
 
-			rc = _deprecated_hfi_msg_process(device_id, pkt, info,
-							 inst);
+			rc = _deprecated_hfi_msg_process(device_id,
+				pkt, info, inst);
 			cvp_put_inst(inst);
 			return rc;
 		}

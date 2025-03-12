@@ -369,6 +369,7 @@ struct msm_cvp_inst {
 #else
 	struct mutex fence_lock;
 #endif
+	char proc_name[100];
 };
 
 struct msm_cvp_fence_thread_data {
