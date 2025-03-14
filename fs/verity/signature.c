@@ -10,6 +10,7 @@
 #include <linux/cred.h>
 #include <linux/key.h>
 #include <linux/slab.h>
+#include <linux/sysctl.h>
 #include <linux/verification.h>
 
 /*
@@ -139,13 +140,6 @@ static const struct ctl_path fsverity_sysctl_path[] = {
 	{ .procname = "verity", },
 	{ }
 };
-
-/* shared constants to be used in various sysctls */
-static int sysctl_vals[] = { 0, 1, INT_MAX };
-
-#define SYSCTL_ZERO	((void *)&sysctl_vals[0])
-#define SYSCTL_ONE	((void *)&sysctl_vals[1])
-#define SYSCTL_INT_MAX	((void *)&sysctl_vals[2])
 
 static struct ctl_table fsverity_sysctl_table[] = {
 	{
