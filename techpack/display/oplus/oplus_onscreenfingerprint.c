@@ -29,7 +29,6 @@ bool apollo_backlight_enable = false;
 struct drm_msm_pcc oplus_save_pcc;
 int oplus_dimlayer_hbm = 0;
 int oplus_dimlayer_hbm_saved = 0;
-int oplus_dimlayer_aod = 0;
 int oplus_aod_dim_alpha = CUST_A_NO;
 
 extern int oplus_underbrightness_alpha;
@@ -40,7 +39,6 @@ extern bool oplus_ffl_trigger_finish;
 extern int dynamic_osc_clock;
 extern ktime_t oplus_onscreenfp_pressed_time;
 extern u32 oplus_onscreenfp_vblank_count;
-extern int aod_light_mode;
 int oplus_onscreenfp_status = 0;
 int oplus_dimlayer_hbm_vblank_count = 0;
 atomic_t oplus_dimlayer_hbm_vblank_ref = ATOMIC_INIT(0);
@@ -184,52 +182,6 @@ static int bl_to_alpha_dc(int brightness)
 			brightness_alpha_lut_dc[i-1].alpha,
 			brightness_alpha_lut_dc[i].alpha, display->panel->oplus_priv.bl_interpolate_alpha_dc_nosub);
 	return alpha;
-}
-
-static int bl_to_alpha_aod(int brightness)
-{
-	struct dsi_display *display = get_main_display();
- 	struct oplus_brightness_alpha *lut = NULL;
- 	int count = 0;
- 	int i = 0;
- 	int alpha;
-
-	if (!display)
- 		return 0;
-
-	if (aod_light_mode == 1) {
- 		if (display->panel->aod_low_ba_seq && display->panel->aod_low_ba_count) {
-			count = display->panel->aod_low_ba_count;
- 			lut = display->panel->aod_low_ba_seq;
- 		} else {
- 			/* missing config; return 0 (fully transparent) */
-			return 0;
-		}
-	} else {
-		if (display->panel->aod_high_ba_seq && display->panel->aod_high_ba_count) {
- 			count = display->panel->aod_high_ba_count;
- 			lut = display->panel->aod_high_ba_seq;
- 		} else {
- 			/* missing config; return 0 (fully transparent) */
- 			return 0;
- 		}
- 	}
-
-	for (i = 0; i < count; i++){
- 		if (lut[i].brightness >= brightness)
- 			break;
- 	}
-
- 	if (i == 0)
- 		alpha = lut[0].alpha;
- 	else if (i == count)
- 		alpha = lut[count - 1].alpha;
- 	else
- 		alpha = interpolate(brightness, lut[i-1].brightness,
- 				    lut[i].brightness, lut[i-1].alpha,
- 				    lut[i].alpha, display->panel->oplus_priv.bl_interpolate_nosub);
-
- 	return alpha;
 }
 
 static int brightness_to_alpha(int brightness)
