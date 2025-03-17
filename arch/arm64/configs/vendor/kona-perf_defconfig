@@ -1,4 +1,4 @@
-CONFIG_LOCALVERSION="-phoeniX"
+CONFIG_LOCALVERSION="-phoeniX-next"
 # CONFIG_LOCALVERSION_AUTO is not set
 
 # KernelSU
