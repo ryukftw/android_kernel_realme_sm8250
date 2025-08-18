@@ -21,7 +21,7 @@ config OPLUS_CHARGER_OPTIGA
           Say Y to include support
 
 config OPLUS_SHORT_C_BATT_CHECK
-	tristate "OPLUS_SHORT_C_BATT CHECK SUPPORT"
+	bool "OPLUS_SHORT_C_BATT CHECK SUPPORT"
 	default n
 	depends on MFD_SPMI_PMIC
 	help
@@ -38,7 +38,7 @@ config OPLUS_SMART_CHARGER_SUPPORT
 	  Say Y to include support
 
 config OPLUS_SHORT_HW_CHECK
-	tristate "OPLUS_SHORT_HW CHECK SUPPORT"
+	bool "OPLUS_SHORT_HW CHECK SUPPORT"
 	default n
 	depends on MFD_SPMI_PMIC
 	help
@@ -51,7 +51,7 @@ config OPLUS_CHIP_SOC_NODE
 
 
 config OPLUS_SHORT_IC_CHECK
-	tristate "OPLUS_SHORT_IC CHECK SUPPORT"
+	bool "OPLUS_SHORT_IC CHECK SUPPORT"
 	default n
 	depends on MFD_SPMI_PMIC
 	help
@@ -63,21 +63,21 @@ config OPLUS_SHORT_USERSPACE
 	 Say Y to include support
 
 config OPLUS_RTC_DET_SUPPORT
-	tristate "OPLUS RTC DET SUPPORT"
+	bool "OPLUS RTC DET SUPPORT"
 	default n
 	depends on MFD_SPMI_PMIC
 	help
 	  Say Y to include support
 
 config OPLUS_CHECK_CHARGERID_VOLT
-	tristate "OPLUS CHECK CHARGERID VOLT"
+	bool "OPLUS CHECK CHARGERID VOLT"
 	default n
 	depends on MFD_SPMI_PMIC
 	help
 	  Say Y to include support
 
 config OPLUS_SHIP_MODE_SUPPORT
-	tristate "OPLUS_SHIP_MODE_SUPPORT"
+	bool "OPLUS_SHIP_MODE_SUPPORT"
 	default n
 	depends on MFD_SPMI_PMIC
 	help
