@@ -139,6 +139,8 @@ kernel/configs/android-*.cfg
 #Ignoring Android.bp link file
 #
 Android.bp
+scripts/**/Android.bp
+scripts/Android.bp
 
 # Local builds
 build.log
