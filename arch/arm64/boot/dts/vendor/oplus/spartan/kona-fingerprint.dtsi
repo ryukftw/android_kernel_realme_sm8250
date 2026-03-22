@@ -1,0 +1,70 @@
+&soc {
+	oplus_fp_common {
+		compatible = "oplus,fp_common";
+		oplus,fp_gpio_num = <1>; /* the gpio number of fingerprint id used */
+		oplus,fp_gpio_0 = <&tlmm 9 0x0>;
+                pinctrl-names = "default";
+		pinctrl-0 = <&gpio_id2_default>;
+	        goodix_optical_G3S{
+			oplus,fp-id = <1>; /* fp id mapping table */
+			vendor-chip = <11>; /* please refer to the struct fp_vendor_t in oppo_fp_commmon.n */
+			eng-menu = "-1,-1"; /* represents SNR, inclination test item in engineer menu, and 0/1 means off/on */
+			chip-name = "G_OPTICAL_G3S";  /* /proc/fp_id, will be displayed in engineer menu  */
+		};
+			jiiov_0301 {
+			oplus,fp-id = <0>; /* fp id mapping table */
+			vendor-chip = <32>; /* please refer to the struct fp_vendor_t in oppo_fp_commmon.n */
+			eng-menu = "-1,-1"; /* represents SNR, inclination test item in engineer menu, and 0/1 means off/on */
+			chip-name = "JIIOV_0301";  /* /proc/fp_id, will be displayed in engineer menu  */
+		};
+
+	};
+	goodix_fp {
+		status = "ok";
+		compatible = "goodix,goodix_fp";
+		interrupt-parent = <&tlmm>;
+		interrupts = <23 0>;
+		power-mode = <1> ; /*please refer to the struct fp_power_mode_t in oppo_fp_commmon.n ,0: power mode not set, 1: ldo power, 2: gpio power, 3: auto power */
+		ldo-supply = <&pm8150_l16>;
+		ldo-config = <3300000 3300000 150000>;
+		goodix,gpio_irq = <&tlmm 23 0x1>;
+		goodix,gpio_reset = <&tlmm 68 0x0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_goodix_irq_default>;
+		notify_tpinfo_flag = <1>;
+		power-num = <1>;
+		power_source_1 {
+			power-mode = <1>;
+			power-name = "ldo";
+			power-config = "ldo-config";
+			delay-time = <0>;
+		};
+	};
+	
+	jiiov_fp {
+		status = "ok";
+		compatible = "jiiov,fingerprint";
+		interrupt-parent = <&tlmm>;
+		interrupts = <23 0x0>;
+		anc,gpio_irq = <&tlmm 23 0x1>;
+		anc,gpio_rst = <&tlmm 68 0x0>;
+		ldo-supply = <&pm8150_l16>;
+		pinctrl-names = "anc_reset_reset", "anc_reset_active", "anc_irq_active";
+		pinctrl-0 = <&gpio_anc_reset_reset>;
+		pinctrl-1 = <&gpio_anc_reset_active>;
+		pinctrl-2 = <&gpio_anc_irq_active>;
+	};
+	//#endif /*OPLUS_FEATURE_FINGERPRINT*/
+
+	//#ifdef OPLUS_FEATURE_SECURITY_COMMON
+	oplus_secure_common {
+		compatible = "oplus,secure_common";
+		oplus,sec_reg_num = <0x7805E8>;
+		oplus,sec_en_anti_reg = <0x7801F4>;
+		oplus,sec_override1_reg = <0x7860C0>;
+		oplus,override1_en_value = <0x1>;
+	};
+	//#endif /*OPLUS_FEATURE_SECURITY_COMMON*/
+	//#ifdef OPLUS_FEATURE_SENSOR_SMEM
+	/*enum sensor_id { OPPO_ACCEL,OPPO_GYRO,OPPO_MAG,OPPO_LIGHT,OPPO_PROXIMITY,OPPO_SAR,OPPO_CCT,OPPO_BAROMETER,SENSORS_NUM};*/
+};

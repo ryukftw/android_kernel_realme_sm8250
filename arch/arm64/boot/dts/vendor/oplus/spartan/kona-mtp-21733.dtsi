@@ -1,0 +1,221 @@
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+#include "kona-pmic-overlay.dtsi"
+#include "kona-sde-display.dtsi"
+#include "kona-camera-sensor.dtsi"
+#include "kona-audio-overlay.dtsi"
+#include "kona-thermal-overlay.dtsi"
+#include "kona-fingerprint.dtsi"
+#include "kona-sensor-21733.dtsi"
+
+&qupv3_se12_2uart {
+	status = "ok";
+};
+
+&pm8150a_amoled {
+	status = "ok";
+};
+
+&qupv3_se6_4uart {
+	status = "ok";
+};
+
+&qupv3_se1_i2c {
+	status = "ok";
+	#address-cells = <1>;
+	#size-cells = <0>;
+	nq@28 {
+		compatible = "qcom,nq-nci";
+		reg = <0x28>;
+		qcom,nq-irq = <&tlmm 111 0x00>;
+		qcom,nq-ven = <&tlmm 83 0x00>;
+		qcom,nq-firm = <&tlmm 110 0x00>;
+		qcom,nq-clkreq = <&tlmm 7 0x00>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <111 0>;
+		interrupt-names = "nfc_irq";
+		pinctrl-names = "nfc_active", "nfc_suspend";
+		pinctrl-0 = <&nfc_int_active &nfc_enable_active
+				&nfc_clk_req_active>;
+		pinctrl-1 = <&nfc_int_suspend &nfc_enable_suspend
+				&nfc_clk_req_suspend>;
+	};
+};
+
+&qupv3_se2_i2c {
+	status = "ok";
+	qcom,clk-freq-out = <400000>;
+	pixelworks@26 {
+		status = "ok";
+		compatible = "pixelworks,iris5";
+		reg = <0x26>;
+	};
+};
+
+&ufsphy_mem {
+	compatible = "qcom,ufs-phy-qmp-v4";
+	vdda-phy-supply = <&pm8150_l5>;
+	vdda-phy-always-on;
+	vdda-pll-supply = <&pm8150_l9>;
+	vdda-phy-max-microamp = <89900>;
+	vdda-pll-max-microamp = <18800>;
+	status = "ok";
+};
+
+&ufshc_mem {
+	vdd-hba-supply = <&ufs_phy_gdsc>;
+	vdd-hba-fixed-regulator;
+	vcc-supply = <&pm8150_l17>;
+	vcc-voltage-level = <2504000 2950000>;
+	vcc-low-voltage-sup;
+	vccq-supply = <&pm8150_l6>;
+	vccq2-supply = <&pm8150_s4>;
+	vcc-max-microamp = <800000>;
+	vccq-max-microamp = <800000>;
+	vccq2-max-microamp = <800000>;
+	qcom,vddp-ref-clk-supply = <&pm8150_l6>;
+	qcom,vddp-ref-clk-max-microamp = <100>;
+	qcom,vccq-parent-supply = <&pm8150a_s8>;
+	qcom,vccq-parent-max-microamp = <210000>;
+	status = "ok";
+};
+
+&pm8150_gpios {
+	sim2_det_no_pull: sim2_det_no_pull {
+		pins = "gpio10";
+		function = "normal";
+		input-enable;
+		bias-disable;
+		power-source = <1>;
+	};
+
+	sim2_det_pull_high: sim2_det_pull_high {
+		pins = "gpio10";
+		function = "normal";
+		input-enable;
+		bias-pull-up;
+		power-source = <1>;
+	};
+
+	sim2_det_pull_low: sim2_det_pull_low {
+		pins = "gpio10";
+		function = "normal";
+		input-enable;
+		bias-pull-down;
+		power-source = <1>;
+	};
+};
+
+&soc {
+	oplus,track-charge {
+		compatible = "oplus,track-charge";
+		track,fast_chg_break_t_thd = <1000>;
+		track,general_chg_break_t_thd = <200>;
+		track,voocphy_type = <4>;
+		track,wired_max_power = <65000>;
+		track,wired_fast_chg_scheme = <1>;
+	};
+
+	oplus_battery_log: oplus,battery_log {
+		compatible = "oplus,battery_log";
+		oplus,battery_log_support;
+	};
+
+	nfc_chipset {
+		compatible = "oplus-nfc-chipset";
+		chipset-21733 = "SN100T";
+	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		label = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&key_vol_up_default &key_vol_down_default>;
+
+		vol_up {
+			label = "volume_up";
+			gpios = <&pm8150_gpios 6 GPIO_ACTIVE_LOW>;
+			linux,input-type = <1>;
+			linux,code = <KEY_VOLUMEUP>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+			linux,can-disable;
+		};
+
+		vol_down {
+			label = "volume_down";
+			gpios = <&pm8150_gpios 1 GPIO_ACTIVE_LOW>;
+			linux,input-type = <1>;
+			linux,code = <KEY_VOLUMEDOWN>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+			linux,can-disable;
+		};
+	};
+
+	devinfo {
+		compatible = "oplus-devinfo";
+		pinctrl-names = "active", "sleep";
+		pinctrl-0 = <&hw_id_active>;
+		pinctrl-1 = <&hw_id_sleep>;
+		io-channels= <&pm8150l_vadc ADC_GPIO1>;
+		io-channel-names= "vph_pwr_voltage_sub";
+
+		main-sub {
+			compatible = "hw-match, main-sub";
+			use_pmic_adc;
+			adc_ranges = <0 80 81 180 181 300 301 420 421 550 551 650 651 760 761 850 851 950 951 1050 1051 1150 1151 1300>;
+			aboard-patterns = <0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0>;
+			match-projects = <21623 21733>;
+		};
+	};
+
+	oplus_rf_cable {
+		compatible = "oplus,rf_cable";
+		interrupt-parent = <&tlmm>;
+		rf_cable_support_num = <1>;
+		rf,cable0-gpio = <&tlmm 84 0>;
+		rf,cable-support-timer = <0>;
+		pinctrl-names = "rf_cable_active";
+		pinctrl-0 = <&rf_cable0_active>;
+	};
+
+	oplus_sim_detect {
+		compatible = "oplus, sim_detect";
+		Hw,sim_det = "modem_det";
+	};
+
+	oplus-gpio {
+		compatible = "oplus,oplus-gpio";
+		pinctrl-names = "default", "sim2_det_no_pull", "sim2_det_pull_high", "sim2_det_pull_low";
+		pinctrl-0 = <&sim2_det_no_pull>;
+		pinctrl-1 = <&sim2_det_no_pull>;
+		pinctrl-2 = <&sim2_det_pull_high>;
+		pinctrl-3 = <&sim2_det_pull_low>;
+		oplus,oplus-sim2-det = <&pm8150_gpios 10 0>;
+		oplus,uim-reset-pin = "modem_solution";
+	};
+};
+
+&qupv3_se13_i2c {
+	status = "okay";
+	focaltech@38 {
+		status = "okay";
+		compatible = "focaltech,ft3658u";
+		reg = <0x38>;
+		chip-name = "FT3658U";
+		interrupt-parent = <&tlmm>;
+		interrupts = <39 0x2002>;
+		vdd_2v8-supply = <&pm8150a_l11>;
+		vcc_1v8-supply = <&pm8150a_l1>;
+		vdd_2v8_volt = <3008000>;
+		irq-gpio = <&tlmm 39 0x2002>;
+		reset-gpio = <&tlmm 38 0x1>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&ts_int_active &ts_reset_active>;
+		touchpanel,max-num-support = <10>;
+		touchpanel,display-coords = <1080 2400>;
+		tp_type = <8>;
+	};
+};
