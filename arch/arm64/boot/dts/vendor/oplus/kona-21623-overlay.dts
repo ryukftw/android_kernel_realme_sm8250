@@ -6,7 +6,7 @@
 #include <dt-bindings/clock/qcom,rpmh.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 
-#include "kona-mtp-21623.dtsi"
+#include "spartan/kona-mtp-21623.dtsi"
 
 / {
 	model = "Qualcomm Technologies, Inc. kona MTP 21623";
