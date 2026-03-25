@@ -54,6 +54,9 @@ struct fsa4480_priv {
 	struct work_struct usbc_analog_work;
 	struct blocking_notifier_head fsa4480_notifier;
 	struct mutex notification_lock;
+#ifdef OPLUS_ARCH_EXTENDS
+	unsigned int hs_det_pin;
+#endif /* OPLUS_ARCH_EXTENDS */
 };
 
 struct fsa4480_reg_val {
@@ -221,8 +224,20 @@ static int fsa4480_usbc_analog_setup_switches(struct fsa4480_priv *fsa_priv)
 		/* notify call chain on event */
 		blocking_notifier_call_chain(&fsa_priv->fsa4480_notifier,
 		mode.intval, NULL);
+#ifdef OPLUS_ARCH_EXTENDS
+		if (gpio_is_valid(fsa_priv->hs_det_pin)) {
+			dev_info(dev, "%s: set hs_det_pin to low.\n", __func__);
+			gpio_direction_output(fsa_priv->hs_det_pin, 0);
+		}
+#endif /* OPLUS_ARCH_EXTENDS */
 		break;
 	case POWER_SUPPLY_TYPEC_NONE:
+#ifdef OPLUS_ARCH_EXTENDS
+		if (gpio_is_valid(fsa_priv->hs_det_pin)) {
+			dev_info(dev, "%s: set hs_det_pin to high.\n", __func__);
+			gpio_direction_output(fsa_priv->hs_det_pin, 1);
+		}
+#endif /* OPLUS_ARCH_EXTENDS */
 		/* notify call chain on event */
 		blocking_notifier_call_chain(&fsa_priv->fsa4480_notifier,
 				POWER_SUPPLY_TYPEC_NONE, NULL);
@@ -469,6 +484,39 @@ static void fsa4480_update_reg_defaults(struct regmap *regmap)
 				   fsa_reg_i2c_defaults[i].val);
 }
 
+#ifdef OPLUS_ARCH_EXTENDS
+static int fsa4480_parse_dt(struct fsa4480_priv *fsa_priv,
+	struct device *dev)
+{
+	struct device_node *dNode = dev->of_node;
+	int ret = 0;
+
+	if (dNode == NULL)
+		return -ENODEV;
+
+	if (!fsa_priv) {
+		pr_err("%s: fsa_priv is NULL\n", __func__);
+		return -ENOMEM;
+	}
+
+	fsa_priv->hs_det_pin = of_get_named_gpio(dNode,
+		"fsa4480,hs-det-gpio", 0);
+	if (!gpio_is_valid(fsa_priv->hs_det_pin)) {
+		pr_warning("%s: hs-det-gpio in dt node is missing\n", __func__);
+		return -ENODEV;
+	}
+	ret = gpio_request(fsa_priv->hs_det_pin, "fsa4480_hs_det");
+	if (ret) {
+		pr_warning("%s: hs-det-gpio request fail\n", __func__);
+		return ret;
+	}
+
+	gpio_direction_output(fsa_priv->hs_det_pin, 1);
+
+	return ret;
+}
+#endif /* OPLUS_ARCH_EXTENDS */
+
 static int fsa4480_probe(struct i2c_client *i2c,
 			 const struct i2c_device_id *id)
 {
@@ -481,6 +529,10 @@ static int fsa4480_probe(struct i2c_client *i2c,
 		return -ENOMEM;
 
 	fsa_priv->dev = &i2c->dev;
+
+#ifdef OPLUS_ARCH_EXTENDS
+	fsa4480_parse_dt(fsa_priv, &i2c->dev);
+#endif /* OPLUS_ARCH_EXTENDS */
 
 	fsa_priv->usb_psy = power_supply_get_by_name("usb");
 	if (!fsa_priv->usb_psy) {
@@ -546,6 +598,11 @@ static int fsa4480_remove(struct i2c_client *i2c)
 	power_supply_unreg_notifier(&fsa_priv->psy_nb);
 	power_supply_put(fsa_priv->usb_psy);
 	mutex_destroy(&fsa_priv->notification_lock);
+#ifdef OPLUS_ARCH_EXTENDS
+	if (gpio_is_valid(fsa_priv->hs_det_pin))
+		gpio_free(fsa_priv->hs_det_pin);
+	devm_kfree(&i2c->dev, fsa_priv);
+#endif /* OPLUS_ARCH_EXTENDS */
 	dev_set_drvdata(&i2c->dev, NULL);
 
 	return 0;
